@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MessageSquareText, Plus } from 'lucide-react'
+import { MessageSquareText, Plus, Send } from 'lucide-react'
 import { useStore } from '../store.jsx'
 import { formatINR } from '../utils/format.js'
 import NewInvoiceModal from './NewInvoiceModal.jsx'
@@ -12,7 +12,7 @@ const BADGE_CLASSES = {
   Paid: 'bg-emerald-100 text-emerald-700',
 }
 
-export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenWhatsApp }) {
+export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenWhatsApp, onChase }) {
   const { state } = useStore()
   const [filter, setFilter] = useState('All')
   const [query, setQuery] = useState('')
@@ -124,12 +124,24 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenW
                   {inv.status === 'Paid' ? (
                     <span className="text-slate-400">Paid</span>
                   ) : (
-                    <button
-                      onClick={() => onMarkPaid(inv)}
-                      className="rounded-lg bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800"
-                    >
-                      Mark Paid
-                    </button>
+                    <>
+                      {onChase && (
+                        <button
+                          type="button"
+                          onClick={() => onChase(inv)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          <Send className="h-4 w-4" />
+                          Chase
+                        </button>
+                      )}
+                      <button
+                        onClick={() => onMarkPaid(inv)}
+                        className="rounded-lg bg-slate-900 px-3 py-1.5 text-white hover:bg-slate-800"
+                      >
+                        Mark Paid
+                      </button>
+                    </>
                   )}
                 </td>
               </tr>

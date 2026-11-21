@@ -7,6 +7,7 @@ import ReceivablesLedger from './components/ReceivablesLedger.jsx'
 import WhatsAppParserPanel from './components/WhatsAppParserPanel.jsx'
 import ComingSoon from './components/ComingSoon.jsx'
 import Toast from './components/Toast.jsx'
+import FollowUpDrawer from './components/FollowUpDrawer.jsx'
 import { useStore, nextInvoiceId } from './store.jsx'
 import { formatINR } from './utils/format.js'
 
@@ -16,6 +17,7 @@ export default function App() {
   const { state, dispatch } = useStore()
   const [activeTab, setActiveTab] = useState('Command Center')
   const [message, setMessage] = useState('')
+  const [chaseInvoice, setChaseInvoice] = useState(null)
 
   useEffect(() => {
     if (!message) return
@@ -42,13 +44,18 @@ export default function App() {
         .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ?? null
     content = (
       <div className="flex flex-col gap-6">
-        <PriorityAlert invoice={priorityInvoice} onMarkPaid={handleMarkPaid} />
+        <PriorityAlert
+          invoice={priorityInvoice}
+          onMarkPaid={handleMarkPaid}
+          onChase={setChaseInvoice}
+        />
         <KpiCards />
         <ReceivablesLedger
           invoices={state.invoices}
           onMarkPaid={handleMarkPaid}
           onCreateInvoice={handleCreateInvoice}
           onOpenWhatsApp={() => setActiveTab('Invoices')}
+          onChase={setChaseInvoice}
         />
       </div>
     )
@@ -63,6 +70,7 @@ export default function App() {
           invoices={state.invoices}
           onMarkPaid={handleMarkPaid}
           onCreateInvoice={handleCreateInvoice}
+          onChase={setChaseInvoice}
         />
       </div>
     )
@@ -78,6 +86,13 @@ export default function App() {
         <main className="p-8">{content}</main>
       </div>
       {message && <Toast message={message} />}
+      {chaseInvoice && (
+        <FollowUpDrawer
+          invoice={chaseInvoice}
+          onClose={() => setChaseInvoice(null)}
+          onShowToast={setMessage}
+        />
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { formatINR } from '../utils/format.js'
 
-export default function PriorityAlert({ invoice, onMarkPaid }) {
+export default function PriorityAlert({ invoice, onMarkPaid, onChase }) {
   if (!invoice) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
@@ -28,6 +28,15 @@ export default function PriorityAlert({ invoice, onMarkPaid }) {
       >
         Mark Paid
       </button>
+      {onChase && (
+        <button
+          type="button"
+          onClick={() => onChase(invoice)}
+          className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+        >
+          Draft Reminder
+        </button>
+      )}
     </div>
   )
 }
