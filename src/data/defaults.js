@@ -71,9 +71,9 @@ export const defaultState = {
     },
   ],
   upcomingBills: [
-    { name: 'Studio Rent & Co-working', amount: 28000, dueDate: '2026-12-01' },
-    { name: 'Adobe CC, Figma & Hosting', amount: 6500, dueDate: '2026-12-05' },
-    { name: 'Junior Motion Designer', amount: 22000, dueDate: '2026-12-10' },
-    { name: 'Internet & GST Provision', amount: 12000, dueDate: '2026-12-15' },
+    { id: 'BILL-1', name: 'Studio Rent & Co-working', amount: 28000, dueDate: '2026-12-01', paid: false },
+    { id: 'BILL-2', name: 'Adobe CC, Figma & Hosting', amount: 6500, dueDate: '2026-12-05', paid: false },
+    { id: 'BILL-3', name: 'Junior Motion Designer', amount: 22000, dueDate: '2026-12-10', paid: false },
+    { id: 'BILL-4', name: 'Internet & GST Provision', amount: 12000, dueDate: '2026-12-15', paid: false },
   ],
 }

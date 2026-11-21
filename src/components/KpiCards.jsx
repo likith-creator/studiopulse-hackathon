@@ -10,7 +10,8 @@ export default function KpiCards() {
   const overdue = state.invoices.filter((inv) => inv.status === 'Overdue')
   const totalOwed = sumAmounts(unpaid)
   const overdueTotal = sumAmounts(overdue)
-  const totalBills = sumAmounts(state.upcomingBills)
+  const unpaidBills = state.upcomingBills.filter((bill) => !bill.paid)
+  const totalBills = sumAmounts(unpaidBills)
   const hasShortfall = state.cashOnHand < totalBills
 
   return (
@@ -37,7 +38,7 @@ export default function KpiCards() {
         <p className="text-sm font-medium text-slate-500">Next 30-Day Bills</p>
         <p className="mt-2 text-2xl font-semibold text-slate-900">{formatINR(totalBills)}</p>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <p className="text-sm text-slate-500">Across {state.upcomingBills.length} bills</p>
+          <p className="text-sm text-slate-500">Across {unpaidBills.length} bills</p>
           {hasShortfall && (
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
               Shortfall vs. Cash

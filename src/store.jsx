@@ -29,7 +29,17 @@ function daysBetween(a, b) {
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : defaultState
+    if (!raw) return defaultState
+    const state = JSON.parse(raw)
+    if (Array.isArray(state.upcomingBills)) {
+      state.upcomingBills = state.upcomingBills.map((bill, index) => {
+        let next = bill
+        if (next.id == null) next = { ...next, id: 'BILL-' + (index + 1) }
+        if (next.paid == null) next = { ...next, paid: false }
+        return next
+      })
+    }
+    return state
   } catch {
     return defaultState
   }
@@ -80,6 +90,29 @@ function reducer(state, action) {
         avgDelayDays,
       }
       return { ...state, invoices: [newInvoice, ...state.invoices] }
+    }
+    case 'ADD_BILL': {
+      const p = action.payload ?? {}
+      const bill = {
+        id: 'BILL-' + Date.now(),
+        name: p.name,
+        amount: Number(p.amount),
+        dueDate: p.dueDate,
+        paid: false,
+      }
+      return { ...state, upcomingBills: [...state.upcomingBills, bill] }
+    }
+    case 'PAY_BILL': {
+      const id = action.payload?.id
+      const bill = state.upcomingBills.find((b) => b.id === id)
+      if (!bill || bill.paid) return state
+      return {
+        ...state,
+        cashOnHand: state.cashOnHand - bill.amount,
+        upcomingBills: state.upcomingBills.map((b) =>
+          b.id === id ? { ...b, paid: true } : b
+        ),
+      }
     }
     case 'RESET':
       return defaultState
