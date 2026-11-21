@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { MessageSquareText, Plus, Send } from 'lucide-react'
+import { MessageSquareText, Plus, Printer, Send } from 'lucide-react'
 import { useStore } from '../store.jsx'
 import { formatINR } from '../utils/format.js'
 import NewInvoiceModal from './NewInvoiceModal.jsx'
+import InvoicePrintModal from './InvoicePrintModal.jsx'
 
 const FILTERS = ['All', 'Overdue', 'Pending', 'Paid']
 
@@ -17,6 +18,7 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenW
   const [filter, setFilter] = useState('All')
   const [query, setQuery] = useState('')
   const [showNewInvoice, setShowNewInvoice] = useState(false)
+  const [printInvoice, setPrintInvoice] = useState(null)
 
   const invoices = state.invoices
   const counts = {
@@ -121,6 +123,14 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenW
                   </span>
                 </td>
                 <td className="py-3">
+                  <button
+                    type="button"
+                    onClick={() => setPrintInvoice(inv)}
+                    aria-label={`Open PDF for ${inv.id}`}
+                    className="mr-2 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <Printer className="h-4 w-4" />PDF
+                  </button>
                   {inv.status === 'Paid' ? (
                     <span className="text-slate-400">Paid</span>
                   ) : (
@@ -158,6 +168,7 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenW
           }}
         />
       )}
+      {printInvoice && <InvoicePrintModal invoice={printInvoice} onClose={() => setPrintInvoice(null)} />}
     </section>
   )
 }

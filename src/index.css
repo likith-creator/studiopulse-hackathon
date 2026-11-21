@@ -5,3 +5,51 @@
 body {
   background-color: #F8FAFC;
 }
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #printable-invoice,
+  #printable-invoice * {
+    visibility: visible !important;
+  }
+
+  #invoice-print-overlay {
+    position: absolute !important;
+    inset: 0 auto auto 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  #invoice-print-overlay > div {
+    max-height: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    max-width: none !important;
+  }
+
+  #printable-invoice {
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 12mm !important;
+    width: 100% !important;
+  }
+}
