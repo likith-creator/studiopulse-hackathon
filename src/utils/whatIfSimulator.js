@@ -210,9 +210,10 @@ export function runWhatIfSimulation({
 
   const shortfallAmount = Math.max(0, -simulatedLowest.balance);
 
-  const recoveryMoves = hasCrunch
+  let recoveryMoves = hasCrunch
     ? buildRecoveryMoves(simulatedLowest, unpaidInvoices, unpaidBills)
     : [];
+  recoveryMoves = [...recoveryMoves].sort((a, b) => (b.cashGain ?? b.cashRelief ?? 0) - (a.cashGain ?? a.cashRelief ?? 0));
 
   return {
     points,

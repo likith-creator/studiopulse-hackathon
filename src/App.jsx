@@ -5,12 +5,12 @@ import PriorityAlert from './components/PriorityAlert.jsx'
 import KpiCards from './components/KpiCards.jsx'
 import ReceivablesLedger from './components/ReceivablesLedger.jsx'
 import WhatsAppParserPanel from './components/WhatsAppParserPanel.jsx'
-import ComingSoon from './components/ComingSoon.jsx'
 import Toast from './components/Toast.jsx'
 import FollowUpDrawer from './components/FollowUpDrawer.jsx'
 import UpcomingBillsPanel from './components/UpcomingBillsPanel.jsx'
 import ForecastView from './components/ForecastView.jsx'
 import WhatIfSimulator from './components/WhatIfSimulator.jsx'
+import MorningBriefing from './components/MorningBriefing.jsx'
 import { useStore, nextInvoiceId } from './store.jsx'
 import { formatINR } from './utils/format.js'
 
@@ -47,6 +47,7 @@ export default function App() {
         .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ?? null
     content = (
       <div className="flex flex-col gap-6">
+        <MorningBriefing onOpenSimulator={() => setActiveTab('What-If Simulator')} />
         <PriorityAlert
           invoice={priorityInvoice}
           onMarkPaid={handleMarkPaid}
