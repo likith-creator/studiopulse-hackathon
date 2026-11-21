@@ -10,6 +10,7 @@ import Toast from './components/Toast.jsx'
 import FollowUpDrawer from './components/FollowUpDrawer.jsx'
 import UpcomingBillsPanel from './components/UpcomingBillsPanel.jsx'
 import ForecastView from './components/ForecastView.jsx'
+import WhatIfSimulator from './components/WhatIfSimulator.jsx'
 import { useStore, nextInvoiceId } from './store.jsx'
 import { formatINR } from './utils/format.js'
 
@@ -80,7 +81,7 @@ export default function App() {
   } else if (activeTab === '90-Day Forecast') {
     content = <ForecastView />
   } else {
-    content = <ComingSoon title={activeTab} />
+    content = <WhatIfSimulator onChase={setChaseInvoice} onShowToast={setMessage} />
   }
 
   return (
