@@ -36,6 +36,7 @@ export default function ForecastView() {
   const { state } = useStore()
   const [horizon, setHorizon] = useState(30)
   const [activeIndex, setActiveIndex] = useState(null)
+  const [compareReality, setCompareReality] = useState(true)
 
   const forecast = useMemo(
     () =>
@@ -48,10 +49,23 @@ export default function ForecastView() {
     [state, horizon]
   )
 
-  const { points, lowestPoint, firstCrunchDate, hasCrunch, totalExpectedInflow, totalExpectedOutflow, endingBalance, milestones } = forecast
+  const {
+    points,
+    lowestPoint,
+    firstCrunchDate,
+    hasCrunch,
+    adjustedLowestPoint,
+    adjustedFirstCrunchDate,
+    hasAdjustedCrunch,
+    totalExpectedInflow,
+    totalExpectedOutflow,
+    endingBalance,
+    milestones,
+  } = forecast
 
   const count = points.length
-  const balances = points.map((p) => p.balance)
+  // Scale spans both lines so toggling Reality never rescales the chart.
+  const balances = points.flatMap((p) => [p.balance, p.adjustedBalance])
   const rawMin = Math.min(0, ...balances)
   const rawMax = Math.max(0, ...balances)
   const yMin = rawMin
@@ -60,6 +74,9 @@ export default function ForecastView() {
   const xFor = (i) => (count <= 1 ? PAD_L : PAD_L + (i * (W - PAD_L - PAD_R)) / (count - 1))
   const yFor = (b) => PAD_T + ((yMax - b) / (yMax - yMin)) * (H - PAD_T - PAD_B)
   const zeroY = yFor(0)
+  const realityPath = compareReality
+    ? points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(2)} ${yFor(p.adjustedBalance).toFixed(2)}`).join(' ')
+    : ''
 
   // Horizontal gridlines at nice rupee steps (always includes 0 because yMin <= 0 <= yMax).
   const step = niceStep(yMax - yMin)
@@ -113,6 +130,16 @@ export default function ForecastView() {
               {days} Days
             </button>
           ))}
+          <button
+            type="button"
+            aria-pressed={compareReality}
+            onClick={() => setCompareReality((v) => !v)}
+            className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+              compareReality ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            Compare Reality (Avg Delay)
+          </button>
         </div>
       </div>
 
@@ -129,6 +156,15 @@ export default function ForecastView() {
           </p>
         )}
       </div>
+
+      {compareReality && hasAdjustedCrunch && !hasCrunch && (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p>
+            <span className="font-bold">Hidden Cash Crunch Exposed:</span> Printed due dates look safe, but historical client delays push
+            cash to {formatINR(adjustedLowestPoint.balance)} on {adjustedFirstCrunchDate}.
+          </p>
+        </div>
+      )}
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-xl border border-emerald-200 bg-white p-5 shadow-sm">
@@ -151,6 +187,20 @@ export default function ForecastView() {
       </div>
 
       <div className="mt-6 rounded-xl border bg-white p-4">
+        <div className="mb-2 flex flex-wrap items-center gap-4 text-sm text-slate-700">
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-block h-0.5 w-6 bg-indigo-600" />
+            Due-Date Forecast
+          </span>
+          {compareReality && (
+            <span className="inline-flex items-center gap-2">
+              <svg width="24" height="4" aria-hidden="true">
+                <line x1="0" y1="2" x2="24" y2="2" stroke="#d97706" strokeWidth="2.5" strokeDasharray="6 4" />
+              </svg>
+              Reality (With Client Delays)
+            </span>
+          )}
+        </div>
         {count > 0 ? (
           <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Projected bank balance over time">
             <defs>
@@ -179,6 +229,15 @@ export default function ForecastView() {
 
             {areaPath && <path d={areaPath} fill="url(#forecastAreaFill)" />}
             {linePath && <path d={linePath} fill="none" stroke="#4f46e5" strokeWidth="2.5" strokeLinejoin="round" />}
+            {compareReality && (
+              <path d={realityPath} fill="none" stroke="#d97706" strokeWidth="2.5" strokeDasharray="6 4" strokeLinejoin="round" />
+            )}
+            {compareReality &&
+              points.map((p, i) =>
+                p.adjustedDayInflows.length > 0 ? (
+                  <circle key={`radj-${i}`} cx={xFor(i)} cy={yFor(p.adjustedBalance)} r="3.5" fill="#d97706" />
+                ) : null
+              )}
 
             {points.map((p, i) =>
               p.dayInflows.length > 0 ? (
@@ -213,6 +272,16 @@ export default function ForecastView() {
                   stroke="#4f46e5"
                   strokeWidth="2.5"
                 />
+                {compareReality && (
+                  <circle
+                    cx={xFor(activeIndex)}
+                    cy={yFor(activePoint.adjustedBalance)}
+                    r="6"
+                    fill="white"
+                    stroke="#d97706"
+                    strokeWidth="2.5"
+                  />
+                )}
               </>
             )}
 
@@ -247,9 +316,28 @@ export default function ForecastView() {
 
         {activePoint && (
           <div className="mt-4 rounded-lg border bg-slate-50 p-4 text-sm">
-            <p className="font-semibold text-slate-900">
-              {activePoint.date} · Balance {formatINR(activePoint.balance)}
-            </p>
+            {compareReality ? (
+              <div>
+                <p className="font-semibold text-slate-900">{activePoint.date}</p>
+                <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1 font-semibold">
+                  <span className="text-indigo-600">Due-Date Balance {formatINR(activePoint.balance)}</span>
+                  <span className="text-amber-700">Reality Balance {formatINR(activePoint.adjustedBalance)}</span>
+                </div>
+                {activePoint.adjustedDayInflows.length > 0 && (
+                  <ul className="mt-1 space-y-0.5 text-slate-700">
+                    {activePoint.adjustedDayInflows.map((ev, i) => (
+                      <li key={`radin-${i}`}>
+                        {ev.label} · +{formatINR(ev.amount)} (expected {ev.adjustedDate})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <p className="font-semibold text-slate-900">
+                {activePoint.date} · Balance {formatINR(activePoint.balance)}
+              </p>
+            )}
             <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
                 <p className="text-emerald-600">

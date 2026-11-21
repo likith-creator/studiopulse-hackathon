@@ -79,6 +79,29 @@ export function buildForecastSeries({
     )
     .map((bill) => makeEvent('outflow', bill, bill.name || 'Bill'));
 
+  // Behaviour-adjusted (reality) inflows: each unpaid invoice is pushed back by
+  // avgDelayDays. Overdue invoices are expected from TODAY plus the delay.
+  // Bills are not shifted, so outflowEvents is reused as-is.
+  const adjustedInflowEvents = (invoices || [])
+    .filter((inv) => inv && inv.status !== 'Paid' && normDate(inv.dueDate))
+    .map((inv) => {
+      const dueDate = normDate(inv.dueDate);
+      const delay = Number(inv.avgDelayDays) || 0;
+      const adjustedDate =
+        dueDate < TODAY
+          ? addDays(TODAY, delay)
+          : addDays(dueDate, delay);
+      return {
+        kind: 'inflow',
+        date: dueDate,
+        adjustedDate,
+        amount: Number(inv.amount) || 0,
+        label: inv.client || inv.name || 'Invoice',
+        avgDelayDays: delay,
+      };
+    })
+    .filter((e) => e.adjustedDate <= horizonEnd);
+
   const allEvents = [...inflowEvents, ...outflowEvents];
 
   // Checkpoints: TODAY, every 3 days, every event date, and the horizon end.
@@ -87,6 +110,7 @@ export function buildForecastSeries({
     checkpointSet.add(addDays(TODAY, k));
   }
   allEvents.forEach((e) => checkpointSet.add(e.effDate));
+  adjustedInflowEvents.forEach((e) => checkpointSet.add(e.adjustedDate));
   const dates = [...checkpointSet].sort();
 
   const points = dates.map((date) => {
@@ -96,6 +120,10 @@ export function buildForecastSeries({
     const outflows = outflowEvents.filter((e) => e.effDate === date);
     const runningInflow = sumAmounts(inflowEvents.filter((e) => e.effDate <= date));
     const runningOutflow = sumAmounts(outflowEvents.filter((e) => e.effDate <= date));
+    const adjustedInflows = adjustedInflowEvents.filter((e) => e.adjustedDate === date);
+    const adjustedRunningInflow = sumAmounts(
+      adjustedInflowEvents.filter((e) => e.adjustedDate <= date)
+    );
     return {
       date,
       balance: opening + runningInflow - runningOutflow,
@@ -109,6 +137,9 @@ export function buildForecastSeries({
       dayOutflowAmount: sumAmounts(outflows),
       cumulativeInflow: runningInflow,
       cumulativeOutflow: runningOutflow,
+      adjustedDayInflows: adjustedInflows,
+      adjustedDayInflowAmount: sumAmounts(adjustedInflows),
+      adjustedBalance: opening + adjustedRunningInflow - runningOutflow,
     };
   });
 
@@ -120,6 +151,20 @@ export function buildForecastSeries({
 
   const crunchPoint = points.find((p) => p.balance < 0);
   const firstCrunchDate = crunchPoint ? crunchPoint.date : null;
+
+  let adjustedLow = points[0];
+  for (const p of points) {
+    if (p.adjustedBalance < adjustedLow.adjustedBalance) adjustedLow = p;
+  }
+  const adjustedLowestPoint = { date: adjustedLow.date, balance: adjustedLow.adjustedBalance };
+
+  const adjustedCrunchPoint = points.find((p) => p.adjustedBalance < 0);
+  const adjustedFirstCrunchDate = adjustedCrunchPoint ? adjustedCrunchPoint.date : null;
+
+  const maxDelayGap = Math.max(
+    0,
+    ...points.map((p) => p.balance - p.adjustedBalance)
+  );
 
   const milestones = [...allEvents]
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
@@ -149,5 +194,9 @@ export function buildForecastSeries({
     horizonDays,
     horizonEnd,
     milestones,
+    adjustedLowestPoint,
+    adjustedFirstCrunchDate,
+    hasAdjustedCrunch: adjustedFirstCrunchDate !== null,
+    maxDelayGap,
   };
 }
