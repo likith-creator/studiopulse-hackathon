@@ -4,6 +4,7 @@ import TopBar from './components/TopBar.jsx'
 import PriorityAlert from './components/PriorityAlert.jsx'
 import KpiCards from './components/KpiCards.jsx'
 import ReceivablesLedger from './components/ReceivablesLedger.jsx'
+import WhatsAppParserPanel from './components/WhatsAppParserPanel.jsx'
 import ComingSoon from './components/ComingSoon.jsx'
 import Toast from './components/Toast.jsx'
 import { useStore, nextInvoiceId } from './store.jsx'
@@ -43,6 +44,21 @@ export default function App() {
       <div className="flex flex-col gap-6">
         <PriorityAlert invoice={priorityInvoice} onMarkPaid={handleMarkPaid} />
         <KpiCards />
+        <ReceivablesLedger
+          invoices={state.invoices}
+          onMarkPaid={handleMarkPaid}
+          onCreateInvoice={handleCreateInvoice}
+          onOpenWhatsApp={() => setActiveTab('Invoices')}
+        />
+      </div>
+    )
+  } else if (activeTab === 'Invoices') {
+    content = (
+      <div className="flex flex-col gap-6">
+        <WhatsAppParserPanel
+          onCreateInvoice={handleCreateInvoice}
+          onMarkPaid={handleMarkPaid}
+        />
         <ReceivablesLedger
           invoices={state.invoices}
           onMarkPaid={handleMarkPaid}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { MessageSquareText, Plus } from 'lucide-react'
 import { useStore } from '../store.jsx'
 import { formatINR } from '../utils/format.js'
 import NewInvoiceModal from './NewInvoiceModal.jsx'
@@ -12,7 +12,7 @@ const BADGE_CLASSES = {
   Paid: 'bg-emerald-100 text-emerald-700',
 }
 
-export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice }) {
+export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenWhatsApp }) {
   const { state } = useStore()
   const [filter, setFilter] = useState('All')
   const [query, setQuery] = useState('')
@@ -42,13 +42,24 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice }) {
           <h2 className="text-lg font-semibold text-slate-900">Receivables Ledger</h2>
           <p className="text-sm text-slate-500">Who Owes Me, How Much, and Since When?</p>
         </div>
-        <button
-          onClick={() => setShowNewInvoice(true)}
-          className="bg-slate-900 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
-        >
-          <Plus size={16} />
-          New Invoice
-        </button>
+        <div className="flex items-center gap-2">
+          {onOpenWhatsApp && (
+            <button
+              onClick={onOpenWhatsApp}
+              className="border border-slate-300 text-slate-600 hover:bg-slate-50 rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
+            >
+              <MessageSquareText size={16} />
+              Paste WhatsApp
+            </button>
+          )}
+          <button
+            onClick={() => setShowNewInvoice(true)}
+            className="bg-slate-900 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
+          >
+            <Plus size={16} />
+            New Invoice
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
