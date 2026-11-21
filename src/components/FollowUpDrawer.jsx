@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, QrCode, Copy, Send } from 'lucide-react';
 import { formatINR } from '../utils/format.js';
+import ClientCheckoutModal from './ClientCheckoutModal.jsx';
 
 function getDefaultTone(invoice) {
   if (invoice.status === 'Pending') return 'friendly';
@@ -38,14 +39,15 @@ function FollowUpDrawer({ invoice, onClose, onShowToast }) {
   const [defaultTone] = useState(() => getDefaultTone(invoice));
   const [tone, setTone] = useState(defaultTone);
   const [message, setMessage] = useState(() => buildMessage(defaultTone, invoice));
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !checkoutOpen) onClose();
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, checkoutOpen]);
 
   const handleToneClick = (t) => {
     setTone(t);
@@ -124,6 +126,14 @@ function FollowUpDrawer({ invoice, onClose, onShowToast }) {
           </div>
         </div>
 
+        <button
+          type="button"
+          onClick={() => setCheckoutOpen(true)}
+          className="mt-3 w-full rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+        >
+          Launch Live Client Checkout →
+        </button>
+
         <div className="flex gap-3 justify-end mt-auto pt-4">
           <button
             type="button"
@@ -142,6 +152,17 @@ function FollowUpDrawer({ invoice, onClose, onShowToast }) {
             Open in WhatsApp
           </button>
         </div>
+        {checkoutOpen && (
+          <ClientCheckoutModal
+            invoice={invoice}
+            onClose={() => setCheckoutOpen(false)}
+            onFinish={(message) => {
+              setCheckoutOpen(false);
+              onShowToast(message);
+              onClose();
+            }}
+          />
+        )}
       </div>
     </div>
   );
