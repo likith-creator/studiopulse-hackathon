@@ -71,7 +71,16 @@ export function extractAmount(raw) {
   for (const m of work.matchAll(/(\d+(?:\.\d+)?)\s*(k|thousand|lakhs?|l)(?![a-z])/gi)) {
     hits.push({ index: m.index, value: parseFloat(m[1]) * multiplier(m[2]), marked: true });
   }
+  const compoundSpans = [];
+  const compoundRe = new RegExp(`\\b(${NUMBER_PHRASE})\\s+(lakhs?)(?:\\s+(?:and\\s+)?(${NUMBER_PHRASE})\\s+(thousand))?\\b`, 'gi');
+  for (const m of work.matchAll(compoundRe)) {
+    const value = wordsToNumber(m[1]) * 100000 + (m[3] ? wordsToNumber(m[3]) * 1000 : 0);
+    hits.push({ index: m.index, value, marked: true });
+    compoundSpans.push([m.index, m.index + m[0].length]);
+  }
+  const inCompound = (i) => compoundSpans.some(([s, e]) => i >= s && i < e);
   for (const m of work.matchAll(new RegExp(`\\b(${NUMBER_PHRASE})\\s+(thousand|lakhs?)\\b`, 'gi'))) {
+    if (inCompound(m.index)) continue;
     hits.push({ index: m.index, value: wordsToNumber(m[1]) * multiplier(m[2]), marked: true });
   }
   for (const m of work.matchAll(/\d[\d,]*/g)) {

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { MessageSquareText } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Mic, MicOff, MessageSquareText } from 'lucide-react'
 import { useStore } from '../store.jsx'
 import { formatINR } from '../utils/format.js'
 import { parseWhatsAppMessage } from '../utils/whatsappParser.js'
@@ -21,6 +21,9 @@ const SAMPLES = [
 
 const INPUT_CLASS =
   'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500'
+
+const SpeechRecognitionCtor =
+  typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null
 
 const GEMINI_KEY_STORAGE = 'studiopulse-gemini-key'
 const GEMINI_URL =
@@ -124,6 +127,9 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
   const [aiResult, setAiResult] = useState(null)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiNote, setAiNote] = useState('')
+  const [listening, setListening] = useState(false)
+  const [micNotice, setMicNotice] = useState('')
+  const recognitionRef = useRef(null)
 
   const parsed = useMemo(
     () => parseWhatsAppMessage(text, state.invoices),
@@ -138,13 +144,13 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
   }, [])
 
   useEffect(() => {
-    setForm({
+    setForm((prev) => ({
       client: view.client,
       company: view.company,
       project: view.project,
-      amount: view.amount ?? '',
+      amount: view.amount > 0 ? view.amount : prev.amount,
       dueDate: view.dueDate,
-    })
+    }))
   }, [view, text])
 
   const updateText = (next) => {
@@ -152,6 +158,59 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
     setAiResult(null)
     setAiNote('')
   }
+
+  const MIC_UNAVAILABLE =
+    'Mic unavailable in this browser — type, paste, or use a sample chip below.'
+
+  const startListening = () => {
+    if (!SpeechRecognitionCtor) {
+      setMicNotice(MIC_UNAVAILABLE)
+      return
+    }
+    setMicNotice('')
+    const baseText = text.trim() === '' || /\s$/.test(text) ? text : `${text} `
+    const rec = new SpeechRecognitionCtor()
+    rec.lang = 'en-IN'
+    rec.interimResults = true
+    rec.continuous = false
+    recognitionRef.current = rec
+    rec.onresult = (event) => {
+      // Rebuild from the start of the session so earlier final results are never dropped.
+      let transcript = ''
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript
+      }
+      updateText(baseText + transcript.trim())
+    }
+    rec.onerror = () => {
+      setMicNotice(MIC_UNAVAILABLE)
+      setListening(false)
+      recognitionRef.current = null
+    }
+    rec.onend = () => {
+      setListening(false)
+      recognitionRef.current = null
+    }
+    try {
+      setListening(true)
+      rec.start()
+    } catch {
+      setMicNotice(MIC_UNAVAILABLE)
+      setListening(false)
+      recognitionRef.current = null
+    }
+  }
+
+  const toggleListening = () => {
+    if (listening) {
+      recognitionRef.current?.stop()
+    } else {
+      startListening()
+    }
+  }
+
+  // Never leave the microphone on after unmount.
+  useEffect(() => () => recognitionRef.current?.abort(), [])
 
   const handleAiParse = async () => {
     setAiLoading(true)
@@ -177,7 +236,7 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
     }
   }
 
-  const amt = Number(form.amount)
+  const amt = Number(String(form.amount).replace(/[^0-9.]/g, ''))
   const canCreate =
     form.client.trim() !== '' &&
     form.company.trim() !== '' &&
@@ -263,7 +322,28 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
               {s.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={toggleListening}
+            className={
+              listening
+                ? 'inline-flex animate-pulse items-center gap-2 rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white'
+                : 'inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100'
+            }
+          >
+            {listening ? <MicOff size={14} /> : <Mic size={14} />}
+            {listening ? 'Listening... Tap to Stop' : 'Speak Deal'}
+          </button>
         </div>
+
+        {listening && (
+          <p className="text-xs text-slate-500">Listening in English / Hinglish (en-IN)...</p>
+        )}
+        {micNotice !== '' && (
+          <p role="status" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            {micNotice}
+          </p>
+        )}
 
         <textarea
           rows={6}
