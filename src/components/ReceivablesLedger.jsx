@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Plus } from 'lucide-react'
 import { useStore } from '../store.jsx'
 import { formatINR } from '../utils/format.js'
+import NewInvoiceModal from './NewInvoiceModal.jsx'
 
 const FILTERS = ['All', 'Overdue', 'Pending', 'Paid']
 
@@ -10,10 +12,11 @@ const BADGE_CLASSES = {
   Paid: 'bg-emerald-100 text-emerald-700',
 }
 
-export default function ReceivablesLedger({ onMarkPaid }) {
+export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice }) {
   const { state } = useStore()
   const [filter, setFilter] = useState('All')
   const [query, setQuery] = useState('')
+  const [showNewInvoice, setShowNewInvoice] = useState(false)
 
   const invoices = state.invoices
   const counts = {
@@ -34,9 +37,18 @@ export default function ReceivablesLedger({ onMarkPaid }) {
 
   return (
     <section className="bg-white rounded-xl shadow-sm border p-6">
-      <div className="mb-4">
-        <h2 className="text-lg font-semibold text-slate-900">Receivables Ledger</h2>
-        <p className="text-sm text-slate-500">Who Owes Me, How Much, and Since When?</p>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">Receivables Ledger</h2>
+          <p className="text-sm text-slate-500">Who Owes Me, How Much, and Since When?</p>
+        </div>
+        <button
+          onClick={() => setShowNewInvoice(true)}
+          className="bg-slate-900 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-semibold flex items-center gap-2"
+        >
+          <Plus size={16} />
+          New Invoice
+        </button>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
@@ -114,6 +126,15 @@ export default function ReceivablesLedger({ onMarkPaid }) {
           )}
         </tbody>
       </table>
+      {showNewInvoice && (
+        <NewInvoiceModal
+          onClose={() => setShowNewInvoice(false)}
+          onCreate={(payload) => {
+            onCreateInvoice(payload)
+            setShowNewInvoice(false)
+          }}
+        />
+      )}
     </section>
   )
 }

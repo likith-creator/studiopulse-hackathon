@@ -6,7 +6,7 @@ import KpiCards from './components/KpiCards.jsx'
 import ReceivablesLedger from './components/ReceivablesLedger.jsx'
 import ComingSoon from './components/ComingSoon.jsx'
 import Toast from './components/Toast.jsx'
-import { useStore } from './store.jsx'
+import { useStore, nextInvoiceId } from './store.jsx'
 import { formatINR } from './utils/format.js'
 
 const TABS = ['Command Center', 'Invoices', '90-Day Forecast', 'What-If Simulator']
@@ -27,6 +27,12 @@ export default function App() {
     setMessage(`${invoice.id} marked paid · ${formatINR(invoice.amount)} added to cash`)
   }
 
+  const handleCreateInvoice = (payload) => {
+    const id = nextInvoiceId(state.invoices)
+    dispatch({ type: 'ADD_INVOICE', payload })
+    setMessage(`${id} created · ${formatINR(payload.amount)} added to receivables`)
+  }
+
   let content
   if (activeTab === 'Command Center') {
     const priorityInvoice =
@@ -37,7 +43,11 @@ export default function App() {
       <div className="flex flex-col gap-6">
         <PriorityAlert invoice={priorityInvoice} onMarkPaid={handleMarkPaid} />
         <KpiCards />
-        <ReceivablesLedger invoices={state.invoices} onMarkPaid={handleMarkPaid} />
+        <ReceivablesLedger
+          invoices={state.invoices}
+          onMarkPaid={handleMarkPaid}
+          onCreateInvoice={handleCreateInvoice}
+        />
       </div>
     )
   } else {

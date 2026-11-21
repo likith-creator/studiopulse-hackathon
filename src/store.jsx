@@ -3,6 +3,29 @@ import { defaultState, STORAGE_KEY } from './data/defaults.js'
 
 const StoreContext = createContext(null)
 
+export const TODAY = '2026-11-21'
+
+export function nextInvoiceId(invoices) {
+  let max = 0
+  let matched = false
+  for (const inv of invoices) {
+    const m = /^INV-(\d+)$/.exec(inv.id ?? '')
+    if (m) {
+      matched = true
+      max = Math.max(max, Number(m[1]))
+    }
+  }
+  return matched ? 'INV-' + (max + 1) : 'INV-' + (invoices.length + 101)
+}
+
+function daysBetween(a, b) {
+  const toUTC = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number)
+    return Date.UTC(y, m - 1, d)
+  }
+  return Math.round((toUTC(b) - toUTC(a)) / 86400000)
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -25,6 +48,38 @@ function reducer(state, action) {
           inv.id === id ? { ...inv, status: 'Paid', timelineText: 'Paid today' } : inv
         ),
       }
+    }
+    case 'ADD_INVOICE': {
+      const p = action.payload ?? {}
+      const id = nextInvoiceId(state.invoices)
+      const amount = Number(p.amount)
+      const avgDelayDays = Number(p.avgDelayDays) || 0
+      let status
+      let timelineText
+      if (p.dueDate < TODAY) {
+        const n = daysBetween(p.dueDate, TODAY)
+        status = 'Overdue'
+        timelineText = `Overdue by ${n} ${n === 1 ? 'day' : 'days'}`
+      } else if (p.dueDate === TODAY) {
+        status = 'Pending'
+        timelineText = 'Due today'
+      } else {
+        const n = daysBetween(TODAY, p.dueDate)
+        status = 'Pending'
+        timelineText = `Due in ${n} ${n === 1 ? 'day' : 'days'}`
+      }
+      const newInvoice = {
+        id,
+        client: p.client,
+        company: p.company,
+        project: p.project,
+        amount,
+        dueDate: p.dueDate,
+        status,
+        timelineText,
+        avgDelayDays,
+      }
+      return { ...state, invoices: [newInvoice, ...state.invoices] }
     }
     case 'RESET':
       return defaultState
