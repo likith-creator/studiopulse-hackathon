@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import Sidebar from './components/Sidebar.jsx'
 import TopBar from './components/TopBar.jsx'
+import PriorityAlert from './components/PriorityAlert.jsx'
+import KpiCards from './components/KpiCards.jsx'
 import ReceivablesLedger from './components/ReceivablesLedger.jsx'
 import ComingSoon from './components/ComingSoon.jsx'
 import Toast from './components/Toast.jsx'
@@ -27,8 +29,16 @@ export default function App() {
 
   let content
   if (activeTab === 'Command Center') {
+    const priorityInvoice =
+      state.invoices
+        .filter((inv) => inv.status === 'Overdue')
+        .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ?? null
     content = (
-      <ReceivablesLedger invoices={state.invoices} onMarkPaid={handleMarkPaid} />
+      <div className="flex flex-col gap-6">
+        <PriorityAlert invoice={priorityInvoice} onMarkPaid={handleMarkPaid} />
+        <KpiCards />
+        <ReceivablesLedger invoices={state.invoices} onMarkPaid={handleMarkPaid} />
+      </div>
     )
   } else {
     content = <ComingSoon title={activeTab} />
