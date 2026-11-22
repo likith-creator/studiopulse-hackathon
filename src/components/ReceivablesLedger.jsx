@@ -13,6 +13,29 @@ const BADGE_CLASSES = {
   Paid: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
 }
 
+const AVATAR_PALETTES = [
+  'bg-indigo-50 text-indigo-700 ring-indigo-200/70',
+  'bg-emerald-50 text-emerald-700 ring-emerald-200/70',
+  'bg-amber-50 text-amber-700 ring-amber-200/70',
+  'bg-sky-50 text-sky-700 ring-sky-200/70',
+  'bg-violet-50 text-violet-700 ring-violet-200/70',
+]
+
+function initials(name) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join('')
+}
+
+function avatarPalette(name) {
+  let sum = 0
+  for (let i = 0; i < name.length; i += 1) sum += name.charCodeAt(i)
+  return AVATAR_PALETTES[sum % AVATAR_PALETTES.length]
+}
+
 export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenWhatsApp, onChase }) {
   const { state } = useStore()
   const [filter, setFilter] = useState('All')
@@ -110,8 +133,17 @@ export default function ReceivablesLedger({ onMarkPaid, onCreateInvoice, onOpenW
             visible.map((inv) => (
               <tr key={inv.id} className="border-b last:border-0">
                 <td className="py-4">
-                  <p className="font-semibold text-slate-900">{inv.client}</p>
-                  <p className="text-slate-500 text-sm">{inv.company}</p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-1 ring-inset ${avatarPalette(inv.client)}`}
+                    >
+                      {initials(inv.client)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900">{inv.client}</p>
+                      <p className="text-slate-500 text-sm">{inv.company}</p>
+                    </div>
+                  </div>
                 </td>
                 <td className="py-4 text-slate-700">{inv.project}</td>
                 <td className="py-4 text-right font-medium tabular-nums">{formatINR(inv.amount)}</td>

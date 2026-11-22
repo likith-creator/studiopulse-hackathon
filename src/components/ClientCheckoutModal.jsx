@@ -5,6 +5,8 @@ import { formatINR } from '../utils/format.js';
 
 const APPS = ['GPay', 'PhonePe', 'Paytm', 'BHIM UPI'];
 
+const APP_DOT = { GPay: 'bg-blue-500', PhonePe: 'bg-violet-600', Paytm: 'bg-sky-500', 'BHIM UPI': 'bg-orange-500' };
+
 export default function ClientCheckoutModal({ invoice, onClose, onFinish }) {
   const { dispatch } = useStore();
   const [selectedApp, setSelectedApp] = useState('GPay');
@@ -77,12 +79,13 @@ export default function ClientCheckoutModal({ invoice, onClose, onFinish }) {
                     role="radio"
                     aria-checked={selectedApp === app}
                     onClick={() => setSelectedApp(app)}
-                    className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium ${
                       selectedApp === app
                         ? 'border-slate-900 bg-slate-900 text-white'
                         : 'border-slate-300 text-slate-700 hover:bg-slate-50'
                     }`}
                   >
+                    <span aria-hidden="true" className={`h-2 w-2 rounded-full ${APP_DOT[app]}`} />
                     {app}
                   </button>
                 ))}

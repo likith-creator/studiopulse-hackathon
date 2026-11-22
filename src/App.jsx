@@ -92,7 +92,16 @@ export default function App() {
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
           <div className="flex shrink-0 items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-bold text-white shadow-sm">S</div>
+            <svg width="32" height="32" viewBox="0 0 32 32" className="shrink-0" aria-hidden="true">
+              <defs>
+                <linearGradient id="sp-logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#4f46e5" />
+                  <stop offset="1" stopColor="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <rect width="32" height="32" rx="8" fill="url(#sp-logo-grad)" />
+              <path d="M5 17h5l2.5-6 4 11 3-8 2 3h5.5" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             <span className="text-base font-bold tracking-tight text-slate-900">StudioPulse</span>
           </div>
           <nav className="flex items-center gap-1.5">

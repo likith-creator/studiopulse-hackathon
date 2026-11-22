@@ -87,7 +87,19 @@ export default function InvoicePrintModal({ invoice, onClose }) {
         <div id="printable-invoice" className="m-6 border border-slate-300 bg-white p-8 text-slate-900">
           <div className="flex justify-between gap-6">
             <div>
-              <p className="text-xl font-bold tracking-wide">ARJUN RAO DESIGN STUDIO</p>
+              <div className="flex items-center gap-2.5">
+                <svg width="24" height="24" viewBox="0 0 32 32" className="shrink-0" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="sp-print-logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                      <stop offset="0" stopColor="#4f46e5" />
+                      <stop offset="1" stopColor="#7c3aed" />
+                    </linearGradient>
+                  </defs>
+                  <rect width="32" height="32" rx="8" fill="url(#sp-print-logo-grad)" />
+                  <path d="M5 17h5l2.5-6 4 11 3-8 2 3h5.5" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <p className="text-xl font-bold tracking-wide">ARJUN RAO DESIGN STUDIO</p>
+              </div>
               <p className="mt-1 text-xs text-slate-600">Indiranagar, Bengaluru • GSTIN: 29AABCA1234F1Z5 • arjun@studiorao.in</p>
             </div>
             <div className="text-right">
