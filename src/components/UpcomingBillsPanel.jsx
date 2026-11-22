@@ -67,19 +67,19 @@ export default function UpcomingBillsPanel({ onShowToast }) {
   };
 
   return (
-    <section className="rounded-xl border bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between">
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Receipt className="h-5 w-5" />
           <h2>Upcoming Studio Bills</h2>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium tabular-nums text-slate-700">
             {formatINR(unpaidTotal)} unpaid
           </span>
         </div>
         <button
           type="button"
           onClick={() => setShowForm((open) => !open)}
-          className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
         >
           {showForm ? 'Close' : '+ Add Bill'}
         </button>
@@ -97,7 +97,7 @@ export default function UpcomingBillsPanel({ onShowToast }) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Figma Annual Plan"
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600">
@@ -107,7 +107,7 @@ export default function UpcomingBillsPanel({ onShowToast }) {
               min="1"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm text-slate-600">
@@ -116,19 +116,19 @@ export default function UpcomingBillsPanel({ onShowToast }) {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </label>
           <button
             type="submit"
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+            className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-indigo-600 px-3.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             Save Bill
           </button>
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded-lg border px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+            className="inline-flex h-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Cancel
           </button>
@@ -145,8 +145,8 @@ export default function UpcomingBillsPanel({ onShowToast }) {
                 {bill.dueDate} · {dueBadge(bill.dueDate)}
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="font-semibold text-slate-900">
+            <div className="flex items-center justify-end gap-2">
+              <span className="font-semibold tabular-nums text-slate-900">
                 {formatINR(bill.amount)}
               </span>
               {!bill.paid && (
@@ -158,13 +158,13 @@ export default function UpcomingBillsPanel({ onShowToast }) {
                       `Paid ${bill.name} · ${formatINR(bill.amount)} deducted from cash`
                     );
                   }}
-                  className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  className="inline-flex h-7 items-center justify-center gap-1 whitespace-nowrap rounded-lg border border-slate-200 bg-white px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   Pay Bill
                 </button>
               )}
               {bill.paid && (
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
                   Paid
                 </span>
               )}

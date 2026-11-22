@@ -20,7 +20,7 @@ const SAMPLES = [
 ]
 
 const INPUT_CLASS =
-  'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-500'
+  'w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200'
 
 const SpeechRecognitionCtor =
   typeof window !== 'undefined' ? window.SpeechRecognition || window.webkitSpeechRecognition : null
@@ -257,7 +257,7 @@ export default function WhatsAppParserPanel({ onCreateInvoice, onMarkPaid }) {
   const m = view.matchedInvoice
 
   return (
-    <section className="bg-white rounded-xl border shadow-sm p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section className="grid grid-cols-1 gap-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.03)] lg:grid-cols-2">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">

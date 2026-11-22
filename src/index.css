@@ -6,6 +6,23 @@ body {
   background-color: #F8FAFC;
 }
 
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.tabular-nums,
+td,
+th {
+  font-variant-numeric: tabular-nums;
+}
+
 @page {
   size: A4;
   margin: 0;

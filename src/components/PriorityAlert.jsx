@@ -4,7 +4,7 @@ import { formatINR } from '../utils/format.js'
 export default function PriorityAlert({ invoice, onMarkPaid, onChase }) {
   if (!invoice) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+      <div className="flex items-center justify-between gap-4 rounded-2xl border border-emerald-200/80 bg-emerald-50/60 px-5 py-3.5 text-emerald-900">
         <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
         <p className="text-sm">
           <span className="font-semibold">All Clear:</span> Zero overdue invoices! Every past-due
@@ -15,7 +15,7 @@ export default function PriorityAlert({ invoice, onMarkPaid, onChase }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-900">
+    <div className="flex items-center justify-between gap-4 rounded-2xl border border-rose-200/80 bg-rose-50/60 px-5 py-3.5 text-rose-900">
       <AlertTriangle className="h-5 w-5 shrink-0 text-rose-600" />
       <p className="flex-1 text-sm">
         <span className="font-semibold">Priority Action Today:</span> Chase {invoice.client} (
@@ -24,7 +24,7 @@ export default function PriorityAlert({ invoice, onMarkPaid, onChase }) {
       </p>
       <button
         onClick={() => onMarkPaid(invoice)}
-        className="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700"
+        className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-xl bg-rose-600 px-3.5 text-xs font-semibold text-white shadow-sm hover:bg-rose-700 transition-colors"
       >
         Mark Paid
       </button>
@@ -32,7 +32,7 @@ export default function PriorityAlert({ invoice, onMarkPaid, onChase }) {
         <button
           type="button"
           onClick={() => onChase(invoice)}
-          className="rounded-lg border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+          className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-xl border border-rose-300 bg-white px-3.5 text-xs font-medium text-rose-700 hover:bg-rose-50 transition-colors"
         >
           Draft Reminder
         </button>
