@@ -73,7 +73,7 @@ export default function MorningBriefing({ onOpenSimulator }) {
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="flex flex-col justify-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
           <h3 className="text-sm font-semibold text-slate-300">Cash Runway Snapshot</h3>
           <p className="mt-2 text-sm text-slate-300">
             Cash on hand: <span className="font-semibold text-white tabular-nums">{formatINR(state.cashOnHand)}</span>
@@ -92,7 +92,7 @@ export default function MorningBriefing({ onOpenSimulator }) {
           </span>
         </div>
 
-        <div className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="flex flex-col justify-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
           <h3 className="text-sm font-semibold text-slate-300">Biggest Blind Spot Caught</h3>
           <p className="mt-2 text-sm text-slate-300">Overdue receivables</p>
           <p className="text-2xl font-semibold text-rose-300 tabular-nums">{formatINR(overdueTotal)}</p>
@@ -108,10 +108,10 @@ export default function MorningBriefing({ onOpenSimulator }) {
           </button>
         </div>
 
-        <div className="flex flex-col justify-between gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+        <div className="flex flex-col justify-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
           <h3 className="text-sm font-semibold text-slate-300">Why Switch From a Notebook? (SaaS ROI)</h3>
           <p className="mt-2 text-sm leading-relaxed text-slate-200">
-            ₹499/mo Solo Plan • Saves ~4.5 hrs/week of manual WhatsApp chasing & prevents missed rent—a 270x ROI on recovering just one late invoice.
+            ₹499/mo Solo Plan • Saves ~4.5 hrs/week of manual WhatsApp chasing & prevents missed rent—recovering one ₹65,000 invoice pays for 10+ years of StudioPulse.
           </p>
         </div>
       </div>
